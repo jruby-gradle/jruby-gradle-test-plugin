@@ -25,9 +25,8 @@ class JRubyRSpecPlugin implements Plugin<Project> {
     void addAfterEvaluateHooks(Project project) {
         project.afterEvaluate {
             project.tasks.withType(RSpec) { Task task ->
-                project.configurations.maybeCreate(task.name)
-                project.dependencies.add(task.name, "org.jruby:jruby-complete:${task.jrubyVersion}")
-                project.dependencies.add(task.name, "rubygems:rspec:${task.version}")
+                project.dependencies.add(task.configuration.name, "org.jruby:jruby-complete:${task.jrubyVersion}")
+                project.dependencies.add(task.configuration.name, "rubygems:rspec:${task.version}")
             }
         }
     }

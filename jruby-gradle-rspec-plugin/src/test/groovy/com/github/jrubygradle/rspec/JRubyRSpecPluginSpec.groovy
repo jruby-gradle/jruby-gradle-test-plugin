@@ -10,8 +10,6 @@ import org.gradle.process.internal.ExecException
 
 import java.nio.file.Files
 
-import static org.gradle.api.logging.LogLevel.LIFECYCLE
-
 /**
  * @author Christian Meier
  *
@@ -19,7 +17,6 @@ import static org.gradle.api.logging.LogLevel.LIFECYCLE
 class JRubyRSpecPluginSpec extends Specification {
     static final File TESTROOT = new File("${System.getProperty('TESTROOT') ?: 'build/tmp/test/unittests'}")
     static final File TESTREPO_LOCATION = new File("${System.getProperty('TESTREPO_LOCATION') ?: 'build/tmp/test/repo'}")
-    //static final String jrubyTestVersion = '1.7.21'
 
     def project
     def specDir
@@ -52,11 +49,10 @@ class JRubyRSpecPluginSpec extends Specification {
 
         project.buildscript {
             repositories {
-              flatDir dirs : TESTREPO_LOCATION.absolutePath
+                flatDir dirs : TESTREPO_LOCATION.absolutePath
             }
         }
         project.buildDir = TESTROOT
-        //project.logging.level = LIFECYCLE
         project.apply plugin: 'com.github.jruby-gradle.rspec'
         //project.jruby.defaultRepositories = false
         project.repositories {
@@ -110,6 +106,19 @@ class JRubyRSpecPluginSpec extends Specification {
             output.contains( 'No examples found.' )
     }
 
+    def "Run rspec with none default jruby versions"() {
+        given:
+            Task task = project.tasks.getByName('rspec')
+            task.jrubyVersion = '1.7.20'
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/jruby-version/spec').getAbsoluteFile().toPath())
+            project.evaluate()
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            output.contains( '1 example, 0 failures' )
+    }
+
     def "Throw exception on test failure"() {
         when:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/failing/spec').getAbsoluteFile().toPath())
@@ -123,9 +132,9 @@ class JRubyRSpecPluginSpec extends Specification {
         given:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
-            project.tasks.getByName('rspec').run()
+            Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
-                project.tasks.getByName('rspec').run()
+                task.run()
             }
             println output
         expect:
@@ -157,20 +166,24 @@ class JRubyRSpecPluginSpec extends Specification {
             output.contains( '2 examples, 0 failures' )
     }
 
-    // def "Run rspec tasks separated reversed"() {
-    //     given:
-    //         Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/more/spec').getAbsoluteFile().toPath())
-    //         project.dependencies {
-    //            rspec 'rubygems:leafy-metrics:0.6.0'
-    //            rspec 'org.slf4j:slf4j-simple:1.6.4'
-    //         }
-    //         project.evaluate()
-    //         String output = captureStdout {
-    //             project.tasks.getByName('rspec').run()
-    //         }
-    //         println output
-    //     expect:
-    //         output.contains( '3 examples, 0 failures' )
-    // }
-
+    def "Run rspec task with custom configuration"() {
+        given:
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/more/spec').getAbsoluteFile().toPath())
+            project.configurations.create('some')
+            project.dependencies {
+               some 'rubygems:leafy-metrics:0.6.0'
+               some 'org.slf4j:slf4j-simple:1.6.4'
+            }
+            RSpec task = (RSpec) project.tasks.create( 'mine', RSpec)
+            task.configure {
+              configuration('some')
+            }
+            project.evaluate()
+            String output = captureStdout {
+                task.run()
+            }
+            println output
+        expect:
+            output.contains( '2 examples, 0 failures' )
+    }
 }
