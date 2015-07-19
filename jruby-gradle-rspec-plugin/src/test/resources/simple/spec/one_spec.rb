@@ -10,4 +10,9 @@ describe 'Simple' do
   it 'has some loaded gems' do
     expect(Gem.loaded_specs.size).to eq 6
   end
+
+  it 'has some loaded gems' do
+    require 'rspec'
+    expect(Gem.loaded_specs['rspec'].version.to_s).not_to eq '3.2.0'
+  end
 end

@@ -186,4 +186,43 @@ class JRubyRSpecPluginSpec extends Specification {
         expect:
             output.contains( '2 examples, 0 failures' )
     }
+
+    def "Run custom rspec version"() {
+        given:
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/rspec-version/spec').getAbsoluteFile().toPath())
+            Task task = project.tasks.getByName('rspec')
+            task.configure {
+                version = '3.2.0'
+            }
+            project.evaluate()
+            String output = captureStdout {
+                task.run()
+            }
+            println output
+        expect:
+            output.contains( '1 example, 0 failures' )
+    }
+
+    def "Run custom rspec version separate from other tasks"() {
+        given:
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/rspec-version/spec').getAbsoluteFile().toPath())
+            Task task = project.tasks.create('other', RSpec)
+            task.configure {
+                version = '3.2.0'
+            }
+            project.evaluate()
+            String outputOther = captureStdout {
+                task.run()
+            }
+            println outputOther
+            specDir.delete()
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            String output = captureStdout {
+                project.tasks.getByName('rspec').run()
+            }
+            println output
+        expect:
+            outputOther.contains( '1 example, 0 failures' )
+            output.contains( '4 examples, 0 failures' )
+    }
 }

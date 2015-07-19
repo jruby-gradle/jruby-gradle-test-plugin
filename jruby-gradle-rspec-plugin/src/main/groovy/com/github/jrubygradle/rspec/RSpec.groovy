@@ -19,10 +19,15 @@ class RSpec extends DefaultTask {
 
     static final String DEFAULT_VERSION = '3.3.0'
   
+    @Input
     String version = DEFAULT_VERSION
 
     @Input
     String jrubyVersion = project.jruby.defaultVersion
+
+    void version(String version) {
+        this.version = version
+    }
 
     void jrubyVersion(String version) {
         this.jrubyVersion = version
