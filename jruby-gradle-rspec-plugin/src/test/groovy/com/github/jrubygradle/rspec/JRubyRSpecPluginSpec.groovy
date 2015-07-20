@@ -1,14 +1,17 @@
 package com.github.jrubygradle.rspec
 
+import java.nio.file.Files
+
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
-import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Specification
 import org.gradle.process.internal.ExecException
+import org.gradle.testfixtures.ProjectBuilder
 
-import java.nio.file.Files
+import org.apache.tools.ant.util.TeeOutputStream
+
+import spock.lang.Specification
 
 /**
  * @author Christian Meier
@@ -21,11 +24,11 @@ class JRubyRSpecPluginSpec extends Specification {
     def project
     def specDir
 
-    static String captureStdout( Closure closure ){
+    static String captureStdout(Closure closure) {
         OutputStream output = new ByteArrayOutputStream()
         PrintStream out = System.out
         try {
-          System.out = new PrintStream(output)
+          System.out = new PrintStream(new TeeOutputStream(System.out, output))
           closure.call()
         }
         finally {
@@ -65,7 +68,7 @@ class JRubyRSpecPluginSpec extends Specification {
     void setup() {
 
         if(TESTROOT.exists()) {
-          //  TESTROOT.deleteDir()
+            TESTROOT.deleteDir()
         }
         TESTROOT.mkdirs()
 
@@ -136,9 +139,8 @@ class JRubyRSpecPluginSpec extends Specification {
             String output = captureStdout {
                 task.run()
             }
-            println output
         expect:
-            output.contains( '3 examples, 0 failures' )
+            output.contains( '4 examples, 0 failures' )
     }
 
     def "Run rspec tasks separated"() {
@@ -153,16 +155,14 @@ class JRubyRSpecPluginSpec extends Specification {
             String outputMine = captureStdout {
                 task.run()
             }
-            println outputMine
 
             specDir.delete()
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/more/spec').getAbsoluteFile().toPath())
             String output = captureStdout {
                 project.tasks.getByName('rspec').run()
             }
-            println output
         expect:
-            outputMine.contains( '3 examples, 0 failures' )
+            outputMine.contains( '4 examples, 0 failures' )
             output.contains( '2 examples, 0 failures' )
     }
 
@@ -182,7 +182,6 @@ class JRubyRSpecPluginSpec extends Specification {
             String output = captureStdout {
                 task.run()
             }
-            println output
         expect:
             output.contains( '2 examples, 0 failures' )
     }
@@ -198,9 +197,8 @@ class JRubyRSpecPluginSpec extends Specification {
             String output = captureStdout {
                 task.run()
             }
-            println output
         expect:
-            output.contains( '1 example, 0 failures' )
+            output.contains( '2 examples, 0 failures' )
     }
 
     def "Run custom rspec version separate from other tasks"() {
@@ -214,13 +212,11 @@ class JRubyRSpecPluginSpec extends Specification {
             String outputOther = captureStdout {
                 task.run()
             }
-            println outputOther
             specDir.delete()
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             String output = captureStdout {
                 project.tasks.getByName('rspec').run()
             }
-            println output
         expect:
             outputOther.contains( '1 example, 0 failures' )
             output.contains( '4 examples, 0 failures' )
