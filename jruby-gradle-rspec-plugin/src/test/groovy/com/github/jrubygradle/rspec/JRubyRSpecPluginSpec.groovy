@@ -242,4 +242,48 @@ class JRubyRSpecPluginSpec extends Specification {
             output.contains( '0 examples, 0 failures' )
             outputOther.contains( '4 examples, 0 failures' )
     }
+
+    def "Run rspec with directory picker via system properties"() {
+        given:
+            Task task = project.tasks.create('other', RSpec)
+            project.evaluate()
+            System.setProperty('rspec.file', new File('src/test/resources/simple/spec').absolutePath)
+            String output = captureStdout {
+                project.tasks.getByName('rspec').run()
+            }
+            String outputOther = captureStdout {
+                task.run()
+            }
+        expect:
+            outputOther.contains( '0 examples, 0 failures' )
+            output.contains( '4 examples, 0 failures' )
+    }
+
+    def "Run rspec task with file picker via system properties"() {
+        given:
+            Task task = project.tasks.create('other', RSpec)
+            project.evaluate()
+            System.properties.remove('rspec.file')
+            System.setProperty('other.file', new File('src/test/resources/simple/spec/one_spec.rb').absolutePath)
+            String outputOther = captureStdout {
+                project.tasks.getByName('rspec').run()
+            }
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            outputOther.contains( '0 examples, 0 failures' )
+            output.contains( '4 examples, 0 failures' )
+    }
+
+    def "fails rspec with file picker if file is missing"() {
+        when:
+            project.evaluate()
+            System.setProperty('rspec.file', 'path/does/not/exists/one_spec.rb')
+            String output = captureStdout {
+                project.tasks.getByName('rspec').run()
+            }
+        then:
+            thrown(ExecException)
+    }
 }

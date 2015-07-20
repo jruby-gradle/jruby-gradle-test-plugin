@@ -61,6 +61,10 @@ class RSpec extends DefaultTask {
         if (pattern != null) {
             args += ['--pattern', pattern]
         }
+        String file = System.getProperty("${name}.file")
+        if (file != null) {
+            args += [file]
+        }
         jruby.exec(args)
     }
 }
