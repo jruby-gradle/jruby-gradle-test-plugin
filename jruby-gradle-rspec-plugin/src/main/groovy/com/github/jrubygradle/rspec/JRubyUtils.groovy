@@ -39,7 +39,7 @@ public class JRubyUtils {
         GemUtils.setupJars(config, gemDir, GemUtils.OverwriteAction.OVERWRITE)
     }
 
-    public void exec(String... arguments) {
+    public void exec(List<String> arguments) {
         project.javaexec {
             classpath jrubyCompleteJar.absolutePath
             // JRuby looks on the classpath inside the 'bin' directory
