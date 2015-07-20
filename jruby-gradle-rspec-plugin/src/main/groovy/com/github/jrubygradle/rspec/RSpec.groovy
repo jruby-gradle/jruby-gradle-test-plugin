@@ -23,10 +23,17 @@ class RSpec extends DefaultTask {
     String version = DEFAULT_VERSION
 
     @Input
+    String pattern
+
+    @Input
     String jrubyVersion = project.jruby.defaultVersion
 
     void version(String version) {
         this.version = version
+    }
+
+    void pattern(String files) {
+        this.pattern = files
     }
 
     void jrubyVersion(String version) {
@@ -50,6 +57,10 @@ class RSpec extends DefaultTask {
 
         jruby.setupGemsAndJars()
 
-        jruby.exec('-S', 'rspec')
+        List<String> args = ['-S', 'rspec']
+        if (pattern != null) {
+            args += ['--pattern', pattern]
+        }
+        jruby.exec(args)
     }
 }

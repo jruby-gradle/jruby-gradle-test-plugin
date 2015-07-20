@@ -198,7 +198,7 @@ class JRubyRSpecPluginSpec extends Specification {
                 task.run()
             }
         expect:
-            output.contains( '2 examples, 0 failures' )
+            output.contains( '1 example, 0 failures' )
     }
 
     def "Run custom rspec version separate from other tasks"() {
@@ -220,5 +220,26 @@ class JRubyRSpecPluginSpec extends Specification {
         expect:
             outputOther.contains( '1 example, 0 failures' )
             output.contains( '4 examples, 0 failures' )
+    }
+
+    def "Run rspec with custom pattern"() {
+        given:
+            File specsDir = new File(project.projectDir, 'myspec').getAbsoluteFile()
+            Files.createSymbolicLink(specsDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            Task task = project.tasks.create('other', RSpec)
+            task.configure {
+                pattern 'myspec/*_spec.rb'
+            }
+            project.evaluate()
+            String outputOther = captureStdout {
+                task.run()
+            }
+            specsDir.delete()
+            String output = captureStdout {
+                project.tasks.getByName('rspec').run()
+            }
+        expect:
+            output.contains( '0 examples, 0 failures' )
+            outputOther.contains( '4 examples, 0 failures' )
     }
 }
