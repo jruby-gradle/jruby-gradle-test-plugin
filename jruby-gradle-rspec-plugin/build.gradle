@@ -3,6 +3,7 @@ version = rootProject.version
 
 configurations {
     testRepo
+    testRepo2
 }
 
 repositories {
@@ -23,11 +24,17 @@ dependencies {
     testRepo ("org.jruby:jruby-complete:1.7.21") {
         transitive = false
     }
-    testRepo ('rubygems:rspec:3.3.0') {
+    testRepo2 ("org.jruby:jruby-complete:1.7.20") {
+        transitive = false
+    }
+    testRepo ('org.slf4j:slf4j-simple:1.7.7') {
         transitive = true
     }
-    testRepo ("org.spockframework:spock-core:0.7-groovy-2.0") {
+    testRepo ("io.dropwizard.metrics:metrics-healthchecks:3.1.0") {
         transitive = false
+    }
+    testRepo ("io.dropwizard.metrics:metrics-jvm:3.1.0") {
+        transitive = true
     }
 }
 
@@ -39,6 +46,10 @@ test {
     doFirst {
         copy {
             from project.configurations.testRepo.files
+            into testRepoDir
+        }
+        copy {
+            from project.configurations.testRepo2.files
             into testRepoDir
         }
     }

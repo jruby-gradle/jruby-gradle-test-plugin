@@ -5,7 +5,7 @@ describe 'More' do
   end
 
   it 'has some loaded gems' do
-    require 'leafy-metrics'
+    require 'leafy-health'
     expect(Gem.loaded_specs.size).to eq 7
   end
 end

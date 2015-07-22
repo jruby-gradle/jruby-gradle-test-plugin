@@ -48,28 +48,31 @@ class JRubyRSpecPluginSpec extends Specification {
     static Project setupProject() {
         Project project = ProjectBuilder.builder().build()
 
-        //project.gradle.startParameter.offline = true
+        project.gradle.startParameter.offline = true
+        File repo = new File("src/test/mavenrepo")
+        println repo.absolutePath
+        if (!repo.exists()){
+          throw new RuntimeException("no repo at " + repo)
+        }
 
         project.buildscript {
             repositories {
                 flatDir dirs : TESTREPO_LOCATION.absolutePath
             }
         }
+
         project.buildDir = TESTROOT
         project.apply plugin: 'com.github.jruby-gradle.rspec'
-        //project.jruby.defaultRepositories = false
+        project.jruby.defaultRepositories = false
         project.repositories {
             flatDir dirs : TESTREPO_LOCATION.absolutePath
+            maven { url "file://" + repo.absolutePath }
         }
 
         return project
     }
 
     void setup() {
-
-        if(TESTROOT.exists()) {
-            TESTROOT.deleteDir()
-        }
         TESTROOT.mkdirs()
 
         project = setupProject()
@@ -147,8 +150,11 @@ class JRubyRSpecPluginSpec extends Specification {
         given:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.dependencies {
-               rspec 'rubygems:leafy-metrics:0.6.0'
-               rspec 'org.slf4j:slf4j-simple:1.6.4'
+               rspec 'rubygems:leafy-health:0.6.0'
+               rspec 'org.slf4j:slf4j-simple:1.7.7'
+               // for the offline setup we need to those deps manually
+               rspec 'org.slf4j:slf4j-api:1.7.7'
+               rspec 'io.dropwizard.metrics:metrics-core:3.1.0'
             }
             Task task = project.tasks.create( 'mine', RSpec)
             project.evaluate()
@@ -171,8 +177,11 @@ class JRubyRSpecPluginSpec extends Specification {
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/more/spec').getAbsoluteFile().toPath())
             project.configurations.create('some')
             project.dependencies {
-               some 'rubygems:leafy-metrics:0.6.0'
-               some 'org.slf4j:slf4j-simple:1.6.4'
+               some 'rubygems:leafy-health:0.6.0'
+               some 'org.slf4j:slf4j-simple:1.7.7'
+               // for the offline setup we need to those deps manually
+               some 'org.slf4j:slf4j-api:1.7.7'
+               some 'io.dropwizard.metrics:metrics-core:3.1.0'
             }
             RSpec task = (RSpec) project.tasks.create( 'mine', RSpec)
             task.configure {
@@ -189,7 +198,9 @@ class JRubyRSpecPluginSpec extends Specification {
     def "Run custom rspec version"() {
         given:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/rspec-version/spec').getAbsoluteFile().toPath())
-            Task task = project.tasks.getByName('rspec')
+            // use a custom task to separate the gem install dir from
+            // other tests
+            Task task = project.tasks.create('custom-version', RSpec)
             task.configure {
                 version = '3.2.0'
             }
@@ -204,7 +215,7 @@ class JRubyRSpecPluginSpec extends Specification {
     def "Run custom rspec version separate from other tasks"() {
         given:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/rspec-version/spec').getAbsoluteFile().toPath())
-            Task task = project.tasks.create('other', RSpec)
+            Task task = project.tasks.create('yet', RSpec)
             task.configure {
                 version = '3.2.0'
             }
@@ -289,6 +300,7 @@ class JRubyRSpecPluginSpec extends Specification {
 
     def "Run rspec with unknown tag"() {
         given:
+            System.properties.remove('rspec.file')
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
             System.setProperty('rspec.tags', 'me_and_the_corner:today')
@@ -297,7 +309,7 @@ class JRubyRSpecPluginSpec extends Specification {
                 task.run()
             }
         expect:
-            output.contains( '4 examples, 0 failures' )
+            output.contains( '0 examples, 0 failures' )
     }
 
     def "Run rspec with simple tag"() {

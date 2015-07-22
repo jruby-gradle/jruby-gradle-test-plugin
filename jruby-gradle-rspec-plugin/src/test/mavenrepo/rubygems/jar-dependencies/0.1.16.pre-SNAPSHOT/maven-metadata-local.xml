@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>rubygems</groupId>
+  <artifactId>jar-dependencies</artifactId>
+  <version>0.1.16.pre-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <lastUpdated>20150712155242</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>gem</extension>
+        <value>0.1.16.pre-SNAPSHOT</value>
+        <updated>20150712155242</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.1.16.pre-SNAPSHOT</value>
+        <updated>20150712155242</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>

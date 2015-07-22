@@ -64,7 +64,7 @@ class RSpec extends DefaultTask {
 
         String tags = System.getProperty("${name}.tags")
         if (tags != null) {
-            tags.split(/\s+/).each { args += ['--tags', it] }
+            tags.split(/\s+/).each { args += ['--tag', it] }
         }
 
         String file = System.getProperty("${name}.file")
