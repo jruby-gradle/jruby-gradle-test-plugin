@@ -286,4 +286,73 @@ class JRubyRSpecPluginSpec extends Specification {
         then:
             thrown(ExecException)
     }
+
+    def "Run rspec with unknown tag"() {
+        given:
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            project.evaluate()
+            System.setProperty('rspec.tags', 'me_and_the_corner:today')
+            Task task = project.tasks.getByName('rspec')
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            output.contains( '4 examples, 0 failures' )
+    }
+
+    def "Run rspec with simple tag"() {
+        given:
+            System.properties.remove('rspec.file')
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            project.evaluate()
+            System.setProperty('rspec.tags', 'simple')
+            Task task = project.tasks.getByName('rspec')
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            output.contains( '1 example, 0 failures' )
+    }
+
+  def "Run rspec with name:value tags"() {
+        given:
+            System.properties.remove('rspec.file')
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            project.evaluate()
+            System.setProperty('rspec.tags', 'simple:false')
+            Task task = project.tasks.getByName('rspec')
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            output.contains( '2 examples, 0 failures' )
+    }
+
+    def "Run rspec with multiple tags"() {
+        given:
+            System.properties.remove('rspec.file')
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            project.evaluate()
+            System.setProperty('rspec.tags', 'simple counter:small')
+            Task task = project.tasks.getByName('rspec')
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            output.contains( '2 examples, 0 failures' )
+    }
+
+    def "Run rspec with skipping tag"() {
+        given:
+            System.properties.remove('rspec.file')
+            Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
+            project.evaluate()
+            System.setProperty('rspec.tags', '~simple')
+            Task task = project.tasks.getByName('rspec')
+            String output = captureStdout {
+                task.run()
+            }
+        expect:
+            output.contains( '3 examples, 0 failures' )
+    }
 }
