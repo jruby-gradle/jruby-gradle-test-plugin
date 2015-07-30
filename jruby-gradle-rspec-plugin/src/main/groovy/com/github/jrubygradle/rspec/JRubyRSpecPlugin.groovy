@@ -27,6 +27,7 @@ class JRubyRSpecPlugin implements Plugin<Project> {
             project.tasks.withType(RSpec) { Task task ->
                 project.dependencies.add(task.configuration.name, "org.jruby:jruby-complete:${task.jrubyVersion}")
                 project.dependencies.add(task.configuration.name, "rubygems:rspec:${task.version}")
+                project.dependencies.add(task.configuration.name, "rubygems:ci_reporter_rspec:1.0.+")
             }
         }
     }

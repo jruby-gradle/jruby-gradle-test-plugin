@@ -24,7 +24,8 @@ public class JRubyUtils {
     private final Configuration config;
     private final File gemDir;
     private final File jrubyCompleteJar;
-  
+    private Map<String, String> env = [:]
+
     public JRubyUtils(Project project, Configuration config, String name){
         this.project = project
         this.config = config
@@ -37,6 +38,10 @@ public class JRubyUtils {
         // TODO would be nice to just pass-in the jrubyCompleteJar File here
         GemUtils.extractGems(project, config, config, gemDir, GemUtils.OverwriteAction.SKIP)
         GemUtils.setupJars(config, gemDir, GemUtils.OverwriteAction.OVERWRITE)
+    }
+
+    public void setEnv(Map<String,String> env) {
+        this.env = env
     }
 
     public void exec(List<String> arguments) {
@@ -56,6 +61,7 @@ public class JRubyUtils {
             environment 'GEM_PATH' : gemDir.absolutePath
             environment 'JARS_HOME' : new File(gemDir.absolutePath, 'jars')
             environment 'JARS_LOCK' : new File(gemDir.absolutePath, 'Jars.lock')
+            environment env
         }
     }
 }

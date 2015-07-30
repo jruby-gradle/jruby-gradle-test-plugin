@@ -54,10 +54,10 @@ class RSpec extends DefaultTask {
     @TaskAction
     void run() {
         JRubyUtils jruby = new JRubyUtils(project, configuration, name)
-
+        jruby.setEnv( 'CI_REPORTS' : "${project.buildDir}/${name}" )
         jruby.setupGemsAndJars()
 
-        List<String> args = ['-S', 'rspec']
+        List<String> args = ['-S', 'rspec', '--require', 'ci/reporter/rspec', '--format', 'RSpec::Core::Formatters::ProgressFormatter', '--format', 'CI::Reporter::RSpecFormatter']
         if (pattern != null) {
             args += ['--pattern', pattern]
         }

@@ -118,32 +118,41 @@ class JRubyRSpecPluginSpec extends Specification {
             task.jrubyVersion = '1.7.20'
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/jruby-version/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-JRubyVersion.xml')
+            xmlReport.delete()
             String output = captureStdout {
                 task.run()
             }
         expect:
             output.contains( '1 example, 0 failures' )
+            xmlReport.exists()
     }
 
     def "Throw exception on test failure"() {
         when:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/failing/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Failing.xml')
+            xmlReport.delete()
             project.tasks.getByName('rspec').run()
         then:
             thrown(ExecException)
+            xmlReport.exists()
     }
 
     def "Run rspec"() {
         given:
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
             Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
                 task.run()
             }
         expect:
             output.contains( '4 examples, 0 failures' )
+            xmlReport.exists()
     }
 
     def "Run rspec tasks separated"() {
@@ -158,6 +167,10 @@ class JRubyRSpecPluginSpec extends Specification {
             }
             Task task = project.tasks.create( 'mine', RSpec)
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-More.xml')
+            xmlReport.delete()
+            File xmlReportMine = new File(project.buildDir, 'mine/SPEC-Simple.xml')
+            xmlReportMine.delete()
             String outputMine = captureStdout {
                 task.run()
             }
@@ -170,6 +183,8 @@ class JRubyRSpecPluginSpec extends Specification {
         expect:
             outputMine.contains( '4 examples, 0 failures' )
             output.contains( '2 examples, 0 failures' )
+            xmlReport.exists()
+            xmlReportMine.exists()
     }
 
     def "Run rspec task with custom configuration"() {
@@ -188,11 +203,14 @@ class JRubyRSpecPluginSpec extends Specification {
               configuration('some')
             }
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'mine/SPEC-More.xml')
+            xmlReport.delete()
             String output = captureStdout {
                 task.run()
             }
         expect:
             output.contains( '2 examples, 0 failures' )
+            xmlReport.exists()
     }
 
     def "Run custom rspec version"() {
@@ -205,11 +223,14 @@ class JRubyRSpecPluginSpec extends Specification {
                 version = '3.2.0'
             }
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'custom-version/SPEC-RspecVersion.xml')
+            xmlReport.delete()
             String output = captureStdout {
                 task.run()
             }
         expect:
             output.contains( '1 example, 0 failures' )
+            xmlReport.exists()
     }
 
     def "Run custom rspec version separate from other tasks"() {
@@ -220,6 +241,10 @@ class JRubyRSpecPluginSpec extends Specification {
                 version = '3.2.0'
             }
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
+            File xmlReportOther = new File(project.buildDir, 'yet/SPEC-RspecVersion.xml')
+            xmlReportOther.delete()
             String outputOther = captureStdout {
                 task.run()
             }
@@ -231,6 +256,8 @@ class JRubyRSpecPluginSpec extends Specification {
         expect:
             outputOther.contains( '1 example, 0 failures' )
             output.contains( '4 examples, 0 failures' )
+            xmlReport.exists()
+            xmlReportOther.exists()
     }
 
     def "Run rspec with custom pattern"() {
@@ -242,6 +269,11 @@ class JRubyRSpecPluginSpec extends Specification {
                 pattern 'myspec/*_spec.rb'
             }
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
+            File xmlReportOther = new File(project.buildDir, 'other/SPEC-Simple.xml')
+            xmlReportOther.delete()
+
             String outputOther = captureStdout {
                 task.run()
             }
@@ -252,12 +284,19 @@ class JRubyRSpecPluginSpec extends Specification {
         expect:
             output.contains( '0 examples, 0 failures' )
             outputOther.contains( '4 examples, 0 failures' )
+            !xmlReport.exists()
+            xmlReportOther.exists()
     }
 
     def "Run rspec with directory picker via system properties"() {
         given:
             Task task = project.tasks.create('other', RSpec)
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
+            File xmlReportOther = new File(project.buildDir, 'other/SPEC-Simple.xml')
+            xmlReportOther.delete()
+
             System.setProperty('rspec.file', new File('src/test/resources/simple/spec').absolutePath)
             String output = captureStdout {
                 project.tasks.getByName('rspec').run()
@@ -268,23 +307,31 @@ class JRubyRSpecPluginSpec extends Specification {
         expect:
             outputOther.contains( '0 examples, 0 failures' )
             output.contains( '4 examples, 0 failures' )
+            xmlReport.exists()
+            !xmlReportOther.exists()
     }
 
     def "Run rspec task with file picker via system properties"() {
         given:
             Task task = project.tasks.create('other', RSpec)
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
+            File xmlReportOther = new File(project.buildDir, 'other/SPEC-Simple.xml')
+            xmlReportOther.delete()
             System.properties.remove('rspec.file')
             System.setProperty('other.file', new File('src/test/resources/simple/spec/one_spec.rb').absolutePath)
-            String outputOther = captureStdout {
+            String output = captureStdout {
                 project.tasks.getByName('rspec').run()
             }
-            String output = captureStdout {
+            String outputOther = captureStdout {
                 task.run()
             }
         expect:
-            outputOther.contains( '0 examples, 0 failures' )
-            output.contains( '4 examples, 0 failures' )
+            output.contains( '0 examples, 0 failures' )
+            outputOther.contains( '4 examples, 0 failures' )
+            !xmlReport.exists()
+            xmlReportOther.exists()
     }
 
     def "fails rspec with file picker if file is missing"() {
@@ -303,6 +350,8 @@ class JRubyRSpecPluginSpec extends Specification {
             System.properties.remove('rspec.file')
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
             System.setProperty('rspec.tags', 'me_and_the_corner:today')
             Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
@@ -310,6 +359,7 @@ class JRubyRSpecPluginSpec extends Specification {
             }
         expect:
             output.contains( '0 examples, 0 failures' )
+            !xmlReport.exists()
     }
 
     def "Run rspec with simple tag"() {
@@ -317,6 +367,8 @@ class JRubyRSpecPluginSpec extends Specification {
             System.properties.remove('rspec.file')
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
             System.setProperty('rspec.tags', 'simple')
             Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
@@ -324,13 +376,16 @@ class JRubyRSpecPluginSpec extends Specification {
             }
         expect:
             output.contains( '1 example, 0 failures' )
+            xmlReport.exists()
     }
 
-  def "Run rspec with name:value tags"() {
+    def "Run rspec with name:value tags"() {
         given:
             System.properties.remove('rspec.file')
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
             System.setProperty('rspec.tags', 'simple:false')
             Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
@@ -338,6 +393,7 @@ class JRubyRSpecPluginSpec extends Specification {
             }
         expect:
             output.contains( '2 examples, 0 failures' )
+            xmlReport.exists()
     }
 
     def "Run rspec with multiple tags"() {
@@ -345,6 +401,8 @@ class JRubyRSpecPluginSpec extends Specification {
             System.properties.remove('rspec.file')
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
             System.setProperty('rspec.tags', 'simple counter:small')
             Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
@@ -352,6 +410,7 @@ class JRubyRSpecPluginSpec extends Specification {
             }
         expect:
             output.contains( '2 examples, 0 failures' )
+            xmlReport.exists()
     }
 
     def "Run rspec with skipping tag"() {
@@ -359,6 +418,8 @@ class JRubyRSpecPluginSpec extends Specification {
             System.properties.remove('rspec.file')
             Files.createSymbolicLink(specDir.toPath(), new File('src/test/resources/simple/spec').getAbsoluteFile().toPath())
             project.evaluate()
+            File xmlReport = new File(project.buildDir, 'rspec/SPEC-Simple.xml')
+            xmlReport.delete()
             System.setProperty('rspec.tags', '~simple')
             Task task = project.tasks.getByName('rspec')
             String output = captureStdout {
@@ -366,5 +427,6 @@ class JRubyRSpecPluginSpec extends Specification {
             }
         expect:
             output.contains( '3 examples, 0 failures' )
+            xmlReport.exists()
     }
 }

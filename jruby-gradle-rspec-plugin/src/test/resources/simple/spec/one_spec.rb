@@ -8,7 +8,7 @@ describe 'Simple' do
   end
 
   it 'has some loaded gems', :counter => 'big', :simple => false do
-    expect(Gem.loaded_specs.size).to eq 6
+    expect(Gem.loaded_specs.size).to eq 10
   end
 
   it 'has some loaded gems', :simple => false do
