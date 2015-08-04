@@ -1,0 +1,12 @@
+<metadata>
+  <groupId>rubygems</groupId>
+  <artifactId>ci_reporter_rspec</artifactId>
+  <versioning>
+    <versions>
+      <version>0.0.1</version>
+      <version>0.0.2</version>
+      <version>1.0.0</version>
+    </versions>
+    <lastUpdated>20150729150747</lastUpdated>
+  </versioning>
+</metadata>

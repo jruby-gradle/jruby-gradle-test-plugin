@@ -1,0 +1,45 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>rubygems</groupId>
+  <artifactId>builder</artifactId>
+  <version>3.2.2</version>
+  <packaging>gem</packaging>
+  <name>Builders for MarkUp.</name>
+  <url>http://onestepback.org</url>
+  <description>Builder provides a number of builder objects that make creating structured data
+simple to do.  Currently the following builder objects are supported:
+
+* XML Markup
+* XML Events
+</description>
+  <developers>
+    <developer>
+      <name>Jim Weirich</name>
+      <email>jim.weirich@gmail.com</email>
+    </developer>
+  </developers>
+  <properties>
+    <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+    <jruby.plugins.version>1.0.4</jruby.plugins.version>
+  </properties>
+  <build>
+    <extensions>
+      <extension>
+        <groupId>de.saumya.mojo</groupId>
+        <artifactId>gem-extension</artifactId>
+        <version>${jruby.plugins.version}</version>
+      </extension>
+    </extensions>
+    <directory>${basedir}/pkg</directory>
+    <plugins>
+      <plugin>
+        <groupId>de.saumya.mojo</groupId>
+        <artifactId>gem-maven-plugin</artifactId>
+        <version>${jruby.plugins.version}</version>
+        <configuration>
+          <gemspec>builder-3.2.2.gemspec</gemspec>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

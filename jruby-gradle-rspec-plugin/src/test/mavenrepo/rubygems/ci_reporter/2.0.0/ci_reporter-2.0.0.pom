@@ -1,0 +1,77 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>rubygems</groupId>
+  <artifactId>ci_reporter</artifactId>
+  <version>2.0.0</version>
+  <packaging>gem</packaging>
+  <name>Connects Ruby test frameworks to CI systems via JUnit reports.</name>
+  <url>https://github.com/ci-reporter/ci_reporter</url>
+  <description>CI::Reporter is an add-on to Ruby testing frameworks that allows you to generate XML reports of your test runs. The resulting files can be read by a continuous integration system that understands Ant's JUnit report format.</description>
+  <developers>
+    <developer>
+      <name>Nick Sieger</name>
+      <email>nick@nicksieger.com</email>
+    </developer>
+    <developer>
+      <name>Jake Goulding</name>
+      <email>jake.goulding@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>https://github.com/ci-reporter/ci_reporter.git</connection>
+    <url>https://github.com/ci-reporter/ci_reporter</url>
+  </scm>
+  <properties>
+    <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+    <jruby.plugins.version>1.0.4</jruby.plugins.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>builder</artifactId>
+      <version>[2.1.2,)</version>
+      <type>gem</type>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>rake</artifactId>
+      <version>[0,)</version>
+      <type>gem</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>rdoc</artifactId>
+      <version>[4.0,4.99999]</version>
+      <type>gem</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>rspec</artifactId>
+      <version>[3.0,3.99999]</version>
+      <type>gem</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <extensions>
+      <extension>
+        <groupId>de.saumya.mojo</groupId>
+        <artifactId>gem-extension</artifactId>
+        <version>${jruby.plugins.version}</version>
+      </extension>
+    </extensions>
+    <directory>${basedir}/pkg</directory>
+    <plugins>
+      <plugin>
+        <groupId>de.saumya.mojo</groupId>
+        <artifactId>gem-maven-plugin</artifactId>
+        <version>${jruby.plugins.version}</version>
+        <configuration>
+          <gemspec>ci_reporter-2.0.0.gemspec</gemspec>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

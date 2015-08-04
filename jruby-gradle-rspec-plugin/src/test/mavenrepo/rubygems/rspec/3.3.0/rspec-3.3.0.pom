@@ -1,0 +1,70 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>rubygems</groupId>
+  <artifactId>rspec</artifactId>
+  <version>3.3.0</version>
+  <packaging>gem</packaging>
+  <name>rspec-3.3.0</name>
+  <url>http://github.com/rspec</url>
+  <description>BDD for Ruby</description>
+  <developers>
+    <developer>
+      <name>Steven Baker</name>
+      <email>rspec@googlegroups.com</email>
+    </developer>
+    <developer>
+      <name>David Chelimsky</name>
+    </developer>
+    <developer>
+      <name>Myron Marston</name>
+    </developer>
+  </developers>
+  <scm>
+    <connection>https://github.com/rspec.git</connection>
+    <url>http://github.com/rspec</url>
+  </scm>
+  <properties>
+    <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+    <jruby.plugins.version>1.0.4</jruby.plugins.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>rspec-core</artifactId>
+      <version>[3.3.0,3.3.99999]</version>
+      <type>gem</type>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>rspec-expectations</artifactId>
+      <version>[3.3.0,3.3.99999]</version>
+      <type>gem</type>
+    </dependency>
+    <dependency>
+      <groupId>rubygems</groupId>
+      <artifactId>rspec-mocks</artifactId>
+      <version>[3.3.0,3.3.99999]</version>
+      <type>gem</type>
+    </dependency>
+  </dependencies>
+  <build>
+    <extensions>
+      <extension>
+        <groupId>de.saumya.mojo</groupId>
+        <artifactId>gem-extension</artifactId>
+        <version>${jruby.plugins.version}</version>
+      </extension>
+    </extensions>
+    <directory>${basedir}/pkg</directory>
+    <plugins>
+      <plugin>
+        <groupId>de.saumya.mojo</groupId>
+        <artifactId>gem-maven-plugin</artifactId>
+        <version>${jruby.plugins.version}</version>
+        <configuration>
+          <gemspec>rspec-3.3.0.gemspec</gemspec>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
